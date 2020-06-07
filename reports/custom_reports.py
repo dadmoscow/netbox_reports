@@ -22,13 +22,13 @@ class DeviceAndTemplate(Report):
 
             if device_interface_count != device_template_interface_count:
                 self.log_warning(
-                        device,
-                        device.device_type.display_name + " has  " + str(device_template_interface_count) + ", " + device.name + " has " + str(device_interface_count)
-                        )
+                    device,
+                    device.device_type.display_name + " has  " + str(device_template_interface_count) + ", " + device.name + " has " + str(device_interface_count)
+                )
             else:
-                    self.log_success(
-                            device
-                            )
+                self.log_success(
+                    device
+                )
 
     def test_interface_name(self):
 
@@ -37,7 +37,7 @@ class DeviceAndTemplate(Report):
 
         for device in Device.objects.filter(status__in=[active, planned]):
 
-                      # get all physical device interfaces names
+           # get all physical device interfaces names
            device_interface_names = [inf['name'] for inf in device.interfaces.exclude(type__in=["virtual", "lag"]).values()]
 
            # get device template
@@ -48,8 +48,8 @@ class DeviceAndTemplate(Report):
 
            if device_interface_names == template_interface_names:
                self.log_success(
-                       device
-                   )
+                   device
+               )
            else:
                missing_device_ints = list(set(device_interface_names).difference(template_interface_names))
                missing_devicetype_ints = list(set(template_interface_names).difference(device_interface_names))
@@ -61,44 +61,44 @@ class DeviceAndTemplate(Report):
                    )
 
                if len(missing_devicetype_ints) > 0:
-               self.log_warning(
+                   self.log_warning(
                        device,
                        "Interfaces on DeviceType NOT on the Device: " + str(missing_devicetype_ints)
-               )
+                   )
 
 
 class InterfaceConnection(Report):
-    description = "Check for lost physical interface connections"
-    
+    description = "Check for physical interface connections that are not connected"
+
     def test_interface_connection(self):
         active = DeviceStatusChoices.STATUS_ACTIVE
         planned = DeviceStatusChoices.STATUS_PLANNED
         for device in Device.objects.filter(status__in=[active, planned]):
             # get list with all physical device interfaces
             device_interfaces = [ inf['id'] for inf in device.interfaces.exclude(type__in=["virtual", "lag"]).values() ]
-            
+
             # if exist physical interfaces -> check it, else not exist -> success
             if device_interfaces:
                 inf_not_connected = []
-                
+
                 for inf_id in device_interfaces:
                     # get interface object
                     inf = Interface.objects.filter(id = inf_id)[0]
                     # if interface not connected add to list
-                    if not inf.is_connected:
+                    if not inf.connection_status:
                         inf_not_connected.append(inf.name)
-                        
+
                 # if exist not connected interfaces -> warning, else -> success
                 if inf_not_connected:
                     self.log_warning(
                         device,
                         "Not connected interfaces: {}".format(inf_not_connected)
-                        )
+                    )
                 else:
                     self.log_success(
                         device
-                        )
+                    )
             else:
                 self.log_success(
                     device
-                    )
+                )
