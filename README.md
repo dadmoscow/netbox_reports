@@ -19,7 +19,7 @@ Check for lost physical interface connections
 
 ## How-To
 
-1. Reports must be saved as files in the REPORTS_ROOT path (in `configuration.py`). Which defaults to `netbox/reports/`.
+1. Reports must be saved as files in the REPORTS_ROOT path (in `configuration.py`). Which defaults to `/opt/netbox/netbox/reports/`.
 2. Copy `reports/custom_reports.py` to REPORTS_ROOT
 3. Open in web UI path Organization - Reports
 4. Open report and press "Run Report"
