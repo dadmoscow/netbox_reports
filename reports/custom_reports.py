@@ -26,31 +26,32 @@ class DeviceAndTemplate(Report):
                     self.log_success(
                             device
                             )
-            def test_interface_name(self):
-                active = DeviceStatusChoices.STATUS_ACTIVE
-                planned = DeviceStatusChoices.STATUS_PLANNED
-                for device in Device.objects.filter(status__in=[active, planned]):
-                              # get all physical device interfaces names
-                   device_interface_names = [inf['name'] for inf in device.interfaces.exclude(type__in=["virtual", "lag"]).values()]
 
-                   # get device template
-                   device_template = DeviceType.objects.filter(id = device.device_type_id)[0]
+    def test_interface_name(self):
+        active = DeviceStatusChoices.STATUS_ACTIVE
+        planned = DeviceStatusChoices.STATUS_PLANNED
+        for device in Device.objects.filter(status__in=[active, planned]):
+                      # get all physical device interfaces names
+           device_interface_names = [inf['name'] for inf in device.interfaces.exclude(type__in=["virtual", "lag"]).values()]
 
-                   # get all device template interfaces names
-                   template_interface_names = [inf['name'] for inf in device_template.interface_templates.exclude(type__in=["virtual", "lag"]).values()]
-                   if device_interface_names == template_interface_names:
-                       self.log_success(
-                               device
-                           )
-                   else:
-                       # get dict with count names interface from device + template
-                       all_interfaces = Counter(device_interface_names + template_interface_names)
-                       # get unique values
-                       bad_interfaces = [name for name in all_interfaces.keys() if all_interfaces[name] == 1]
-                       self.log_warning(
-                               device,
-                           "Missing interfaces: {}".format(bad_interfaces)
-                       )
+           # get device template
+           device_template = DeviceType.objects.filter(id = device.device_type_id)[0]
+
+           # get all device template interfaces names
+           template_interface_names = [inf['name'] for inf in device_template.interface_templates.exclude(type__in=["virtual", "lag"]).values()]
+           if device_interface_names == template_interface_names:
+               self.log_success(
+                       device
+                   )
+           else:
+               # get dict with count names interface from device + template
+               all_interfaces = Counter(device_interface_names + template_interface_names)
+               # get unique values
+               bad_interfaces = [name for name in all_interfaces.keys() if all_interfaces[name] == 1]
+               self.log_warning(
+                       device,
+                   "Missing interfaces: {}".format(bad_interfaces)
+               )
 
 
 class InterfaceConnection(Report):
